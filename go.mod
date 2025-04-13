@@ -4,6 +4,7 @@ go 1.24.1
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/brianvoe/gofakeit/v7 v7.2.1 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-sql-driver/mysql v1.9.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
