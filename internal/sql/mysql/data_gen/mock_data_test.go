@@ -1,21 +1,22 @@
-package main
+package data_gen
 
 import (
-	"fmt"
 	"github.com/LucienVen/tech-backend/bootstrap"
 	"github.com/LucienVen/tech-backend/manager/log"
+	"testing"
 )
 
-func main() {
-	fmt.Println("hello, world")
-
+func TestMock(t *testing.T) {
 	app := bootstrap.App()
 	app.StartHeartbeat()
 	defer app.CloseApplication()
 
-	// 初始化日志组件
 	log.InitLogger(app.Env)
-	defer log.Sync()
 
-	select {}
+	err := Mock()
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log("Mock data generated successfully")
 }

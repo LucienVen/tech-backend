@@ -84,7 +84,7 @@ CREATE TABLE `student` (
 CREATE TABLE `subject` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '学科',
-  `desc` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '介绍',
+  `description` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '介绍',
   `director_id` int DEFAULT NULL COMMENT '主任(关联教师 id)',
   `is_delete` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除（逻辑删除标记）',
   `creator` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建者',

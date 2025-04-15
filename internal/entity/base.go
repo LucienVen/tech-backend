@@ -82,10 +82,10 @@ type Student struct {
 
 // Subject 学科信息表
 type Subject struct {
-	Id         int64  `json:"id" db:"id"`
-	Name       string `json:"name" db:"name"`               // 学科
-	Desc       string `json:"desc" db:"desc"`               // 介绍
-	DirectorId int64  `json:"director_id" db:"director_id"` // 主任(关联教师 id)
+	Id          int64  `json:"id" db:"id"`
+	Name        string `json:"name" db:"name"`               // 学科
+	Description string `json:"description" db:"description"` // 介绍
+	DirectorId  int64  `json:"director_id" db:"director_id"` // 主任(关联教师 id)
 	//IsDelete   int8   `json:"is_delete" db:"is_delete"`     // 是否删除（逻辑删除标记）
 	//Creator    string `json:"creator" db:"creator"`         // 创建者
 	//Updater    string `json:"updater" db:"updater"`         // 更新者
