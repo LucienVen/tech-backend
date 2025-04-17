@@ -6,12 +6,16 @@ import (
 	"testing"
 )
 
-func TestMock(t *testing.T) {
+func First() {
 	app := bootstrap.App()
 	app.StartHeartbeat()
 	defer app.CloseApplication()
 
 	log.InitLogger(app.Env)
+}
+
+func TestMock(t *testing.T) {
+	First()
 
 	err := Mock()
 	if err != nil {
@@ -19,4 +23,9 @@ func TestMock(t *testing.T) {
 	}
 
 	t.Log("Mock data generated successfully")
+}
+
+func TestInsertTeachers(t *testing.T) {
+	First()
+	InsertTeachers()
 }

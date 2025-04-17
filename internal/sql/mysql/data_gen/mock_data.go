@@ -29,6 +29,18 @@ func Mock() error {
 	return nil
 }
 
+// insertTeachers 插入老师数据
+func InsertTeachers() {
+	//db := bootstrap.App().Mysql
+	//teachers := []string{"张伟","王伟","王芳","李伟", "王秀英", "李秀英","李娜","张秀英","刘伟","张敏"}
+	//
+	//timenow := time.Now().Unix()
+	//for _, name := range teachers {
+	//	db.Exec("INSERT INTO teacher")
+	//}
+}
+
+// insertSubjects 插入学科数据
 func insertSubjects() {
 	db := bootstrap.App().Mysql
 	subjects := []string{"语文", "数学", "英语", "科学", "体育"}
