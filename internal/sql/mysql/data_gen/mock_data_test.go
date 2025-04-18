@@ -29,3 +29,18 @@ func TestInsertTeachers(t *testing.T) {
 	First()
 	InsertTeachers()
 }
+
+func TestInsertClasses(t *testing.T) {
+	First()
+	InsertClasses()
+}
+
+func TestInsertStudent(t *testing.T) {
+	First()
+	InsertStudent()
+}
+
+func TestInsertExam(t *testing.T) {
+	First()
+	InsertExam()
+}
