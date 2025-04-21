@@ -32,7 +32,7 @@ type Class struct {
 
 // Exam 考试表
 type Exam struct {
-	Id        int64  `json:"id" db:"id"`
+	Id        string `json:"id" db:"id"`
 	Name      string `json:"name" db:"name"`             // 考试名称
 	SubjectId int64  `json:"subject_id" db:"subject_id"` // 学科 id
 	Year      int64  `json:"year" db:"year"`             // 考试年份

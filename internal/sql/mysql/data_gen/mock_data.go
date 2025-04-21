@@ -6,6 +6,7 @@ import (
 	"github.com/LucienVen/tech-backend/manager/log"
 	"github.com/brianvoe/gofakeit/v7"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"time"
 )
@@ -29,6 +30,9 @@ func Mock() error {
 	//insertSubjects()
 	//InsertTeachers()
 	// InsertStudent() // 需要关联班级
+	//InsertClasses()
+	//InsertExam()
+
 	return nil
 }
 
@@ -190,32 +194,62 @@ func InsertExam() {
 	baseMode := entity.GenBaseModel(CreatorMock, UpdaterMock)
 
 	// 生成考试名称
-	examName := make(map[string]int64, 0) // map[考试名称]学科 id
+	//examName := make(map[string]int64, 0) // map[考试名称]学科 id
+
+	examData := make([]entity.Exam, 0)
+
 	for _, subject := range subjects {
 		for i, s := range []string{"2023年上学期", "2023年下学期", "2024年上学期", "2024年下学期"} {
-			examName[s+subject.Name+"考试"] = subject.Id
 
-			if i <= 2 {
-				// 2023年度
+			en := s + subject.Name + "考试"
+			//examName[s+subject.Name+"考试"] = subject.Id
 
-			} else {
-				//2024年度
-
+			year := 2025
+			mockCreateTime := "202504"
+			switch i {
+			case 1:
+				year = 2023
+				mockCreateTime = "202303"
+			case 2:
+				year = 2023
+				mockCreateTime = "202310"
+			case 3:
+				year = 2024
+				mockCreateTime = "202403"
+			case 4:
+				year = 2024
+				mockCreateTime = "202410"
+			default:
 			}
+
+			mockTimestamp, _ := GenTimestamp(mockCreateTime)
+			baseMode.CreateTime = mockTimestamp
+			baseMode.UpdateTime = mockTimestamp
+
+			genId, err := uuid.NewV7()
+			if err != nil {
+				log.Error("uuid generate error", zap.Error(err))
+				panic(err)
+			}
+
+			examData = append(examData, entity.Exam{
+				Id:        genId.String(),
+				Name:      en,
+				SubjectId: subject.Id,
+				Year:      int64(year),
+				BaseModel: baseMode,
+			})
 
 		}
 	}
 
-	examData := make([]entity.Exam, 0)
-
-	for en, sid := range examName {
-		examData = append(examData, entity.Exam{
-			Id:        0,
-			Name:      en,
-			SubjectId: sid,
-			Year:      0,
-			BaseModel: baseMode,
-		})
+	// insert
+	res, err := db.NamedExec(`INSERT INTO exam (id, name, subject_id, year, is_delete, creator, updater, create_time, update_time)
+				VALUES (:id, :name, :subject_id, :year, :is_delete, :creator, :updater, :create_time, :update_time)`, examData)
+	if err != nil {
+		log.Error("insert exam error", zap.Error(err))
 	}
+
+	log.Info("insert exam success", zap.Any("res", res))
 
 }
