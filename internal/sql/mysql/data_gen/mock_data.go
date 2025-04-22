@@ -8,7 +8,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"time"
 )
 
 const (
@@ -27,7 +26,7 @@ func Mock() error {
 	//	学生
 	//nowTime := time.Now().Unix()
 
-	//insertSubjects()
+	//InsertSubjects()
 	//InsertTeachers()
 	// InsertStudent() // 需要关联班级
 	//InsertClasses()
@@ -105,7 +104,7 @@ func InsertClasses() {
 	for i := 1; i <= gradeLevel; i++ {
 		for j := 1; j <= classNum; j++ {
 			classData = append(classData, entity.Class{
-				MainTeacherId: 0,
+				MainTeacherId: "",
 				ClassNum:      int64(j),
 				GradeLevel:    int64(i),
 				BaseModel:     baseMode,
@@ -137,7 +136,11 @@ func InsertTeachers() {
 		if !name.IsMale {
 			gender = 2
 		}
+
+		id, _ := uuid.NewV7()
+
 		teacherData[index] = entity.Teacher{
+			Id:        id.String(),
 			Name:      name.Name,
 			Age:       int64(gofakeit.Number(20, 60)),
 			Gender:    int64(gender),
@@ -148,8 +151,8 @@ func InsertTeachers() {
 		}
 	}
 
-	res, err := db.NamedExec(`INSERT INTO teacher (name, age, gender, phone, email, passwd, is_delete, creator, updater, create_time, update_time)
-				VALUES (:name, :age, :gender, :phone, :email, :passwd, :is_delete, :creator, :updater, :create_time, :update_time)`, teacherData)
+	res, err := db.NamedExec(`INSERT INTO teacher (id, name, age, gender, phone, email, passwd, is_delete, creator, updater, create_time, update_time)
+				VALUES (:id, :name, :age, :gender, :phone, :email, :passwd, :is_delete, :creator, :updater, :create_time, :update_time)`, teacherData)
 
 	if err != nil {
 		log.Error("insert teacher error", zap.Error(err))
@@ -159,20 +162,35 @@ func InsertTeachers() {
 }
 
 // insertSubjects 插入学科数据
-func insertSubjects() {
+func InsertSubjects() {
 	db := bootstrap.App().Mysql
 	subjects := []string{"语文", "数学", "英语", "科学", "体育"}
-	timenow := time.Now().Unix()
-	for _, name := range subjects {
-		res, err := db.Exec("INSERT INTO subject (name, description, is_delete, creator, updater, create_time, update_time) VALUES (?, ?, 0, ?, ?, ?, ?)",
-			name, gofakeit.Sentence(5), CreatorMock, UpdaterMock, timenow, timenow)
-		if err != nil {
-			log.Info("insert subject failed.", zap.String("name", name), zap.Error(err))
-		} else {
-			log.Info("insert subject.", zap.String("name", name), zap.Any("res", res))
-		}
 
+	subjectData := make([]entity.Subject, len(subjects))
+
+	for index, name := range subjects {
+		id, _ := uuid.NewV7()
+		baseModel := entity.GenBaseModel(CreatorMock, UpdaterMock)
+
+		subjectData[index] = entity.Subject{
+			Id:          id.String(),
+			Name:        name,
+			Description: gofakeit.Sentence(5),
+			DirectorId:  "",
+			BaseModel:   baseModel,
+		}
 	}
+
+	res, err := db.NamedExec(`INSERT INTO subject (id, name, description, is_delete, creator, updater, create_time, update_time)
+				VALUES (:id, :name, :description, :is_delete, :creator, :updater, :create_time, :update_time)`, subjectData)
+
+	if err != nil {
+		log.Error("insert subjects error", zap.Error(err))
+		return
+	}
+
+	log.Info("insert subjects success", zap.Any("subjects", subjectData), zap.Any("res", res))
+
 }
 
 // 考试

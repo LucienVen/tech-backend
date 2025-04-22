@@ -44,3 +44,8 @@ func TestInsertExam(t *testing.T) {
 	First()
 	InsertExam()
 }
+
+func TestInsertSubjects(t *testing.T) {
+	First()
+	InsertSubjects()
+}
