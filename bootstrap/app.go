@@ -10,16 +10,23 @@ const (
 	MysqlInterval = 30
 )
 
+var App Application
+
 type Application struct {
 	Env   *Env
 	Mysql *sqlx.DB
 }
 
-func App() Application {
+func Run() Application {
 	app := &Application{}
 	app.Env = NewEnv()
 	app.Mysql = NewMysqlDatabase(app.Env)
-	return *app
+	App = *app
+	return App
+}
+
+func (app *Application) GetDB() *sqlx.DB {
+	return app.Mysql
 }
 
 // 程序退出，清理资源

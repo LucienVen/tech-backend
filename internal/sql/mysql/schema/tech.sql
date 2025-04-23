@@ -107,6 +107,7 @@ CREATE TABLE `teacher` (
   `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '联系方式',
   `email` varchar(100) DEFAULT NULL COMMENT '邮箱地址',
   `passwd` varchar(255) NOT NULL COMMENT '密码（已加密）',
+  `level` int DEFAULT '0' COMMENT '教学年级',
   `is_delete` tinyint(1) DEFAULT '0' COMMENT '是否删除（逻辑删除标记）',
   `creator` varchar(100) DEFAULT NULL COMMENT '创建者',
   `updater` varchar(100) DEFAULT NULL COMMENT '更新者',

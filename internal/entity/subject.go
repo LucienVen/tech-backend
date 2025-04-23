@@ -8,7 +8,8 @@ import (
 )
 
 func GetAllSubject() ([]Subject, error) {
-	db := bootstrap.App().Mysql
+	db := bootstrap.App.GetDB()
+
 	subjects := make([]Subject, 0)
 	sql, _, _ := sq.Select("*").From(SubjectTable).Where(sq.Eq{"is_delete": 0}).ToSql()
 	log.Info("sql:", zap.String("sql", sql))

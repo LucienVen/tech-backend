@@ -1,6 +1,7 @@
 package data_gen
 
 import (
+	"fmt"
 	"github.com/LucienVen/tech-backend/bootstrap"
 	"github.com/LucienVen/tech-backend/internal/entity"
 	"github.com/LucienVen/tech-backend/manager/log"
@@ -18,7 +19,7 @@ const (
 func Mock() error {
 
 	// 链接数据库
-	//db := bootstrap.App().Mysql
+	//db := bootstrap.Run().Mysql
 
 	_ = gofakeit.Seed(0)
 
@@ -28,16 +29,27 @@ func Mock() error {
 
 	//InsertSubjects()
 	//InsertTeachers()
-	// InsertStudent() // 需要关联班级
 	//InsertClasses()
+	// InsertStudent() // 需要关联班级
 	//InsertExam()
+
+	// TODO 设置关联
+	// 教师分配学科
+	//TeacherSubjectRelation()
+	// 班级分配班主任
+	//MainClassTeacherRelation()
+	// 学生分配班级
+	//StudentClassRelation()
+
+	// 成绩表（关联考试 ，关联学生）
+	//InsertExamScoreWithRelation()
 
 	return nil
 }
 
 // insertStudent 插入学生数据
 func InsertStudent() {
-	db := bootstrap.App().Mysql
+	db := bootstrap.Run().Mysql
 
 	studentNames := GenerateBatchChineseNames(300)
 	baseMode := entity.GenBaseModel(CreatorMock, UpdaterMock)
@@ -66,7 +78,10 @@ func InsertStudent() {
 				gender = 2
 			}
 
+			id, _ := uuid.NewV7()
+
 			students = append(students, entity.Student{
+				Id:        id.String(),
 				Name:      name.Name,
 				Gender:    int64(gender),
 				ClassId:   item.Id,
@@ -79,22 +94,21 @@ func InsertStudent() {
 
 	}
 
-	res, err := db.NamedExec(`INSERT INTO student (name, gender, class_id, phone, email, passwd, is_delete, creator, updater, create_time, update_time)
-				VALUES (:name, :gender, :class_id, :phone, :email, :passwd, :is_delete, :creator, :updater, :create_time, :update_time)`, students)
+	res, err := db.NamedExec(`INSERT INTO student (id, name, gender, class_id, phone, email, passwd, is_delete, creator, updater, create_time, update_time)
+				VALUES (:id, :name, :gender, :class_id, :phone, :email, :passwd, :is_delete, :creator, :updater, :create_time, :update_time)`, students)
 
 	if err != nil {
 		log.Error("insert student error", zap.Error(err))
 	} else {
 		log.Info("insert student success", zap.Any("students", students), zap.Any("res", res))
-
 	}
 
 }
 
 // insertClasses 插入班级数据
 func InsertClasses() {
-	db := bootstrap.App().Mysql
-	classNum := 5
+	db := bootstrap.Run().Mysql
+	classNum := 3
 	gradeLevel := 6
 
 	baseMode := entity.GenBaseModel(CreatorMock, UpdaterMock)
@@ -103,7 +117,11 @@ func InsertClasses() {
 
 	for i := 1; i <= gradeLevel; i++ {
 		for j := 1; j <= classNum; j++ {
+
+			classId, _ := uuid.NewV7()
+
 			classData = append(classData, entity.Class{
+				Id:            classId.String(),
 				MainTeacherId: "",
 				ClassNum:      int64(j),
 				GradeLevel:    int64(i),
@@ -112,8 +130,8 @@ func InsertClasses() {
 		}
 	}
 
-	res, err := db.NamedExec(`INSERT INTO class (class_num, grade_level, main_teacher_id, is_delete, creator, updater, create_time, update_time) 
-							values (:class_num, :grade_level, :main_teacher_id, :is_delete, :creator, :updater, :create_time, :update_time)`, classData)
+	res, err := db.NamedExec(`INSERT INTO class (id, class_num, grade_level, main_teacher_id, is_delete, creator, updater, create_time, update_time) 
+							values (:id, :class_num, :grade_level, :main_teacher_id, :is_delete, :creator, :updater, :create_time, :update_time)`, classData)
 
 	if err != nil {
 		log.Error("insert class error", zap.Error(err))
@@ -124,7 +142,7 @@ func InsertClasses() {
 
 // insertTeachers 插入老师数据
 func InsertTeachers() {
-	db := bootstrap.App().Mysql
+	db := bootstrap.Run().Mysql
 	//teachers := []string{"张伟", "王伟", "王芳", "李伟", "王秀英", "李秀英", "李娜", "张秀英", "刘伟", "张敏"}
 	teachers := GenerateBatchChineseNames(20)
 
@@ -163,7 +181,7 @@ func InsertTeachers() {
 
 // insertSubjects 插入学科数据
 func InsertSubjects() {
-	db := bootstrap.App().Mysql
+	db := bootstrap.Run().Mysql
 	subjects := []string{"语文", "数学", "英语", "科学", "体育"}
 
 	subjectData := make([]entity.Subject, len(subjects))
@@ -195,7 +213,7 @@ func InsertSubjects() {
 
 // 考试
 func InsertExam() {
-	db := bootstrap.App().Mysql
+	db := bootstrap.Run().Mysql
 	// 2024年，2023年，
 	// 语数英，各 4 场，上下学期各 2
 
@@ -269,5 +287,52 @@ func InsertExam() {
 	}
 
 	log.Info("insert exam success", zap.Any("res", res))
+
+}
+
+// 教师分配学科
+func TeacherSubjectRelation() error {
+	// 查询老师，查询学科
+	subjects, err := entity.GetAllSubject()
+	if err != nil {
+		return fmt.Errorf("get all subject err: %w", err)
+	}
+	//
+	teachers, err := entity.GetAllTeacher()
+	if err != nil {
+		return fmt.Errorf("get all teacher err: %w", err)
+	}
+
+	subjectLen := len(subjects)
+
+	app := bootstrap.Run()
+
+	for _, item := range teachers {
+		instance := entity.NewTeacherEntity(app.Mysql, item)
+
+		rand := gofakeit.Number(0, subjectLen-1)
+		subjectId := subjects[rand].Id
+
+		err = instance.UpdateSubjectId(subjectId, "lxt-02")
+		if err != nil {
+			return fmt.Errorf("update subject err: %w, teacherId:%s, subjectId:%s", err, item.Id, subjectId)
+		}
+	}
+
+	return nil
+}
+
+// 班级分配班主任
+func MainClassTeacherRelation() {
+
+}
+
+// 学生分配班级
+func StudentClassRelation() {
+
+}
+
+// 成绩表（关联考试 ，关联学生）
+func InsertExamScoreWithRelation() {
 
 }

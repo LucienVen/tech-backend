@@ -9,7 +9,7 @@ import (
 func main() {
 	fmt.Println("hello, world")
 
-	app := bootstrap.App()
+	app := bootstrap.Run()
 	app.StartHeartbeat()
 	defer app.CloseApplication()
 

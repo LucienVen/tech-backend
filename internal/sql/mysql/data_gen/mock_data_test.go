@@ -7,11 +7,12 @@ import (
 )
 
 func First() {
-	app := bootstrap.App()
-	app.StartHeartbeat()
-	defer app.CloseApplication()
+	bootstrap.Run()
 
-	log.InitLogger(app.Env)
+	bootstrap.App.StartHeartbeat()
+	defer bootstrap.App.CloseApplication()
+
+	log.InitLogger(bootstrap.App.Env)
 }
 
 func TestMock(t *testing.T) {
@@ -48,4 +49,15 @@ func TestInsertExam(t *testing.T) {
 func TestInsertSubjects(t *testing.T) {
 	First()
 	InsertSubjects()
+}
+
+func TestTeacherSubjectRelation(t *testing.T) {
+	First()
+	err := TeacherSubjectRelation()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	t.Log("TeacherSubjectRelation success")
 }

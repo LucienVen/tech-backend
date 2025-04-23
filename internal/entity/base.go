@@ -10,6 +10,20 @@ type BaseModel struct {
 	UpdateTime int64  `json:"update_time" db:"update_time"` // 更新时间
 }
 
+func (bm *BaseModel) GenWhenUpdate(handler string) *BaseModel {
+	bm.Updater = handler
+	bm.UpdateTime = time.Now().Unix()
+	return bm
+}
+
+func (bm *BaseModel) GenWhenUpdateMap(handler string) map[string]interface{} {
+	bm.GenWhenUpdate(handler)
+	return map[string]interface{}{
+		"updater":     bm.Updater,
+		"update_time": bm.UpdateTime,
+	}
+}
+
 func GenBaseModel(c, u string) BaseModel {
 	timenow := time.Now().Unix()
 	return BaseModel{
@@ -89,5 +103,6 @@ type Teacher struct {
 	Phone     string `json:"phone" db:"phone"`           // 联系方式
 	Email     string `json:"email" db:"email"`           // 邮箱地址
 	Passwd    string `json:"passwd" db:"passwd"`         // 密码（已加密）
+	Level     int64  `json:"level" bson:"level"`         // 负责年级
 	BaseModel
 }
