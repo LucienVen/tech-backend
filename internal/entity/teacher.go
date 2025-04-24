@@ -9,7 +9,7 @@ import (
 )
 
 func GetAllTeacher() ([]Teacher, error) {
-	db := bootstrap.Run().Mysql
+	db := bootstrap.App.Mysql
 	teachers := make([]Teacher, 0)
 
 	// 明确指定需要的列

@@ -10,8 +10,7 @@ import (
 
 // 获取所有班级信息
 func GetAllClass() ([]Class, error) {
-	app := bootstrap.Run()
-	db := app.GetDB()
+	db := bootstrap.App.GetDB()
 
 	classes := make([]Class, 0)
 

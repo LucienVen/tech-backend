@@ -30,16 +30,15 @@ func Mock() error {
 	//InsertSubjects()
 	//InsertTeachers()
 	//InsertClasses()
-	// InsertStudent() // 需要关联班级
 	//InsertExam()
+
+	// InsertStudent() // 实现了关联班级
 
 	// TODO 设置关联
 	// 教师分配学科
 	//TeacherSubjectRelation()
 	// 班级分配班主任
 	//MainClassTeacherRelation()
-	// 学生分配班级
-	//StudentClassRelation()
 
 	// 成绩表（关联考试 ，关联学生）
 	//InsertExamScoreWithRelation()
@@ -49,17 +48,12 @@ func Mock() error {
 
 // insertStudent 插入学生数据
 func InsertStudent() {
-	db := bootstrap.Run().Mysql
+	db := bootstrap.App.GetDB()
 
 	studentNames := GenerateBatchChineseNames(300)
 	baseMode := entity.GenBaseModel(CreatorMock, UpdaterMock)
 
-	class := []entity.Class{}
-	err := db.Select(&class, "SELECT * FROM class WHERE is_delete = 0")
-	if err != nil {
-		log.Error("get class error", zap.Error(err))
-	}
-
+	class, _ := entity.GetAllClass()
 	students := make([]entity.Student, 0)
 
 	classStudentNum := 10 // 每个班 10 人
@@ -94,15 +88,36 @@ func InsertStudent() {
 
 	}
 
+	//log.Info("len data", zap.Int("len", len(students)))
+	//return
+
+	//分批插入
+	//每次插入 10 条
+	//batchSize := 10
+	//for i := 0; i < len(students); i += batchSize {
+	//	handlerData := students[i:min(i+batchSize, len(students))]
+	//	res, err := db.NamedExec(`INSERT INTO student (id, name, gender, class_id, phone, email, passwd, is_delete, creator, updater, create_time, update_time)
+	//			VALUES (:id, :name, :gender, :class_id, :phone, :email, :passwd, :is_delete, :creator, :updater, :create_time, :update_time)`, handlerData)
+	//
+	//	if err != nil {
+	//		log.Error("insert student error", zap.Error(err))
+	//		return
+	//
+	//	} else {
+	//		log.Info("insert student success", zap.Any("students", students), zap.Any("res", res))
+	//	}
+	//
+	//}
+
 	res, err := db.NamedExec(`INSERT INTO student (id, name, gender, class_id, phone, email, passwd, is_delete, creator, updater, create_time, update_time)
 				VALUES (:id, :name, :gender, :class_id, :phone, :email, :passwd, :is_delete, :creator, :updater, :create_time, :update_time)`, students)
-
 	if err != nil {
 		log.Error("insert student error", zap.Error(err))
+		return
+
 	} else {
 		log.Info("insert student success", zap.Any("students", students), zap.Any("res", res))
 	}
-
 }
 
 // insertClasses 插入班级数据
@@ -213,13 +228,12 @@ func InsertSubjects() {
 
 // 考试
 func InsertExam() {
-	db := bootstrap.Run().Mysql
+	db := bootstrap.App.GetDB()
 	// 2024年，2023年，
 	// 语数英，各 4 场，上下学期各 2
 
 	// 获取学科 ID
-	subjects := []entity.Subject{}
-	err := db.Select(&subjects, "SELECT id, name FROM subject WHERE is_delete = 0 and name in ('语文', '数学', '英语')")
+	subjects, err := entity.GetSubjectByName("语文", "数学", "英语")
 	if err != nil {
 		log.Error("get subject err", zap.Error(err))
 		return
@@ -324,15 +338,69 @@ func TeacherSubjectRelation() error {
 
 // 班级分配班主任
 func MainClassTeacherRelation() {
+	// 查询老师，查询班级
+	teachers, err := entity.GetAllTeacher()
+	if err != nil {
+		log.Error("get all teacher err", zap.Error(err))
+		return
+	}
 
-}
+	classes, err := entity.GetAllClass()
+	if err != nil {
+		log.Error("get all class err", zap.Error(err))
+		return
+	}
 
-// 学生分配班级
-func StudentClassRelation() {
+	teacherNum := len(teachers) - 1
 
+	if teacherNum < len(classes) {
+		log.Error("老师数量不足")
+		return
+	}
+
+	workedTeacher := make(map[string]struct{})
+
+	for _, item := range classes {
+		instance := entity.NewClassEntity(bootstrap.App.Mysql, item)
+
+		teacherId := func(num int) string {
+			tempId := ""
+			// 检查是否已经分配
+			for tempId == "" {
+				rand := gofakeit.Number(0, num)
+				t := teachers[rand].Id
+
+				if _, ok := workedTeacher[t]; !ok {
+					tempId = t
+					workedTeacher[t] = struct{}{}
+				}
+			}
+			return tempId
+		}(teacherNum)
+
+		err = instance.UpdateMainTeacherId(teacherId, "lxt")
+		if err != nil {
+			log.Error("update main teacher err", zap.Error(err))
+			return
+		}
+	}
+
+	log.Info("班级分配班主任成功")
 }
 
 // 成绩表（关联考试 ，关联学生）
-func InsertExamScoreWithRelation() {
+func InsertExamScoreWithRelation() error {
 
+	// 获取考试
+	exams, err := entity.GetAllExams()
+	if err != nil {
+		return fmt.Errorf("get all exam err: %w", err)
+	}
+
+	gradeData := make([]entity.Grade, 0)
+
+	// 每个学生，每场考试，都有成绩
+	for _, item := range exams {
+
+	}
 }

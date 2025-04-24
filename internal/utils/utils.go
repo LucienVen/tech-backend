@@ -7,12 +7,17 @@ import (
 	"github.com/LucienVen/tech-backend/manager/log"
 )
 
-func FirstInit() {
+func FirstInit() func() {
 	app := bootstrap.Run()
 	app.StartHeartbeat()
-	defer app.CloseApplication()
+
+	//log2.Printf("%+v", app.Mysql)
+	//log2.Printf("%+v", bootstrap.App.Mysql)
+	//log2.Printf("%+v", bootstrap.App.GetDB())
 
 	log.InitLogger(app.Env)
+
+	return app.CloseApplication
 }
 
 func StructPrintf(v interface{}) {
