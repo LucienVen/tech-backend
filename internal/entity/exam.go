@@ -12,7 +12,7 @@ func GetAllExams() ([]Exam, error) {
 
 	exams := make([]Exam, 0)
 	sql, args, _ := sq.Select("*").From(ExamTable).Where(sq.Eq{"is_delete": 0}).ToSql()
-	log.Info("GetAllExams sql:", zap.String("sql", sql), zap.Any("args", args))
+	//log.Info("GetAllExams sql:", zap.String("sql", sql), zap.Any("args", args))
 
 	err := db.Select(&exams, sql, args...)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/LucienVen/tech-backend/bootstrap"
 	"github.com/LucienVen/tech-backend/manager/log"
+	"math"
 )
 
 func FirstInit() func() {
@@ -23,4 +24,15 @@ func FirstInit() func() {
 func StructPrintf(v interface{}) {
 	b, _ := json.MarshalIndent(v, "", "  ")
 	fmt.Println(string(b))
+}
+
+// 浮点数保留 N 位小数(返回 float) 不四舍五入
+func FormatFloat2Float(num float64, decimal int) float64 {
+	// 默认乘1
+	d := float64(1)
+	if decimal > 0 {
+		d = math.Pow10(decimal)
+	}
+
+	return math.Trunc(num*d) / d
 }

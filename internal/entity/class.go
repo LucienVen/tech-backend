@@ -21,7 +21,7 @@ func GetAllClass() ([]Class, error) {
 		return nil, err
 	}
 
-	log.Info("executing SQL", zap.String("sql", sql), zap.Any("args", args))
+	//log.Info("executing SQL", zap.String("sql", sql), zap.Any("args", args))
 	err = db.Select(&classes, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query", zap.Error(err))
@@ -59,7 +59,7 @@ func (ce *ClassEntity) UpdateMainTeacherId(teacherId string, handler string) err
 		return err
 	}
 
-	log.Info("UpdateMainTeacherId sql:", zap.String("sql", sql), zap.Any("args", args))
+	//log.Info("UpdateMainTeacherId sql:", zap.String("sql", sql), zap.Any("args", args))
 
 	_, err = ce.db.Exec(sql, args...)
 	if err != nil {

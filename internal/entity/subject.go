@@ -2,9 +2,7 @@ package entity
 
 import (
 	"github.com/LucienVen/tech-backend/bootstrap"
-	"github.com/LucienVen/tech-backend/manager/log"
 	sq "github.com/Masterminds/squirrel"
-	"go.uber.org/zap"
 )
 
 func GetAllSubject() ([]Subject, error) {
@@ -12,7 +10,7 @@ func GetAllSubject() ([]Subject, error) {
 
 	subjects := make([]Subject, 0)
 	sql, _, _ := sq.Select("*").From(SubjectTable).Where(sq.Eq{"is_delete": 0}).ToSql()
-	log.Info("sql:", zap.String("sql", sql))
+	//log.Info("sql:", zap.String("sql", sql))
 	err := db.Select(&subjects, sql, 0)
 	if err != nil {
 		return subjects, err
@@ -28,7 +26,7 @@ func GetSubjectByName(names ...string) ([]Subject, error) {
 	subjects := make([]Subject, 0)
 	sql, args, _ := sq.Select("*").From(SubjectTable).Where(sq.Eq{"is_delete": 0}).Where(sq.Eq{"name": names}).ToSql()
 
-	log.Info("sql:", zap.String("sql", sql), zap.Any("names", names), zap.Any("args", args))
+	//log.Info("sql:", zap.String("sql", sql), zap.Any("names", names), zap.Any("args", args))
 
 	err := db.Select(&subjects, sql, args...)
 	if err != nil {

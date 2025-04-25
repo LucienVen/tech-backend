@@ -2,6 +2,7 @@ package data_gen
 
 import (
 	"github.com/LucienVen/tech-backend/bootstrap"
+	"github.com/LucienVen/tech-backend/internal/utils"
 	"github.com/LucienVen/tech-backend/manager/log"
 	"testing"
 )
@@ -73,4 +74,24 @@ func TestMainClassTeacherRelation(t *testing.T) {
 
 	t.Log("MainClassTeacherRelation success")
 
+}
+
+func TestInsertExamScoreWithRelation(t *testing.T) {
+	clean := utils.FirstInit()
+	defer clean()
+
+	err := InsertExamScoreWithRelation()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	t.Log("InsertExamScoreWithRelation success")
+
+}
+
+func TestGetGradeTerm(t *testing.T) {
+	examName := "2023年下学期数学考试"
+	res := GetGradeTerm(examName)
+	t.Log(res)
 }

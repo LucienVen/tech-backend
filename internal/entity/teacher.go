@@ -19,7 +19,7 @@ func GetAllTeacher() ([]Teacher, error) {
 		return nil, err
 	}
 
-	log.Info("executing SQL", zap.String("sql", sql), zap.Any("args", args))
+	//log.Info("executing SQL", zap.String("sql", sql), zap.Any("args", args))
 	err = db.Select(&teachers, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query", zap.Error(err))
@@ -60,7 +60,7 @@ func (t *TeacherEntity) UpdateSubjectId(subjectId, handler string) error {
 		return err
 	}
 
-	log.Info("UpdateSubjectId executing SQL", zap.String("sql", sql), zap.Any("args", args))
+	//log.Info("UpdateSubjectId executing SQL", zap.String("sql", sql), zap.Any("args", args))
 
 	_, err = t.db.Exec(sql, args...)
 	if err != nil {

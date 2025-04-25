@@ -17,7 +17,7 @@ func GetAllStudent() ([]Student, error) {
 		return nil, err
 	}
 
-	log.Info("executing SQL", zap.String("sql", sql), zap.Any("args", args))
+	//log.Info("executing SQL", zap.String("sql", sql), zap.Any("args", args))
 
 	err = db.Select(&students, sql, args...)
 	if err != nil {
