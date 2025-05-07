@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/LucienVen/tech-backend/mcp/resource"
 	"github.com/mark3labs/mcp-go/server"
 	"log"
 )
@@ -16,6 +17,9 @@ func main() {
 		server.WithLogging(),
 		server.WithRecovery(),
 	)
+
+	// 添加 mysql 表资源
+	s.AddResource(resource.TableResource(), resource.TableResourceFunc)
 
 	// Prompt
 	s.AddPrompt()
