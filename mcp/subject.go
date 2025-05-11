@@ -13,9 +13,11 @@ func main() {
 	s := server.NewMCPServer(
 		"school-teacher-student crm",
 		"1.0.0",
-		server.WithResourceCapabilities(true, true),
+		server.WithResourceCapabilities(true, true), // 启用资源能力
 		server.WithLogging(),
 		server.WithRecovery(),
+		server.WithResourceCapabilities(true, true), // 启用提示词能力
+		server.WithToolCapabilities(true),           // 启用工具能力
 	)
 
 	// 添加 mysql 表资源

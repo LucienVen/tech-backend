@@ -2,10 +2,6 @@ package prompts
 
 import "github.com/mark3labs/mcp-go/mcp"
 
-func NewPrompt() []mcp.Prompt {
-
-}
-
 func QueryBuilderPrompt() mcp.Prompt {
 	return mcp.NewPrompt(
 		"query_builder",
