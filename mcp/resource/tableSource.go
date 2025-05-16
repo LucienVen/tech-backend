@@ -18,6 +18,7 @@ func TableResource() mcp.Resource {
 		"mysql table info",
 		mcp.WithResourceDescription("本项目的mysql表结构"),
 		mcp.WithMIMEType("text/plain"),
+		mcp.ResourceContents(),
 	)
 }
 

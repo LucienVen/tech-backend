@@ -7,8 +7,9 @@ func QueryBuilderPrompt() mcp.Prompt {
 		"query_builder",
 		mcp.WithPromptDescription("SQL query builder assistance"),
 		mcp.WithArgument(
-			"table",
-			mcp.ArgumentDescription("Name of the table to query"),
+			"mysql",
+			mcp.ArgumentDescription("MySQL table structure"),
+			mcp.ArgumentDescription("a"),
 			mcp.RequiredArgument(),
 		),
 	)

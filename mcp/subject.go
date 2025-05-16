@@ -24,7 +24,7 @@ func main() {
 	s.AddResource(resource.TableResource(), resource.TableResourceFunc)
 
 	// Prompt
-	s.AddPrompt()
+	//s.AddPrompt()
 
 	// Start the server
 	if err := server.ServeStdio(s); err != nil {
