@@ -3,9 +3,10 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/LucienVen/tech-backend/bootstrap"
-	"github.com/LucienVen/tech-backend/manager/log"
 	"math"
+
+	"github.com/LucienVen/tech-backend/bootstrap"
+	"github.com/LucienVen/tech-backend/pkg/log"
 )
 
 func FirstInit() func() {
@@ -16,7 +17,7 @@ func FirstInit() func() {
 	//log2.Printf("%+v", bootstrap.App.Mysql)
 	//log2.Printf("%+v", bootstrap.App.GetDB())
 
-	log.InitLogger(app.Env)
+	log.InitLogger()
 
 	return app.CloseApplication
 }

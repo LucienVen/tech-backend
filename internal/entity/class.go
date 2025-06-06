@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/LucienVen/tech-backend/bootstrap"
-	"github.com/LucienVen/tech-backend/manager/log"
+	"github.com/LucienVen/tech-backend/pkg/log"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"

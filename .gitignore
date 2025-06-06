@@ -29,3 +29,7 @@ go.work.sum
 *.log
 
 **/export/
+
+.vscode/
+
+.DS_Store

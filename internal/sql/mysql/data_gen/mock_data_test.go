@@ -1,16 +1,17 @@
 package data_gen
 
 import (
+	"testing"
+
 	"github.com/LucienVen/tech-backend/bootstrap"
 	"github.com/LucienVen/tech-backend/internal/utils"
-	"github.com/LucienVen/tech-backend/manager/log"
-	"testing"
+	"github.com/LucienVen/tech-backend/pkg/log"
 )
 
 func First() {
 	bootstrap.Run()
 	bootstrap.App.StartHeartbeat()
-	log.InitLogger(bootstrap.App.Env)
+	log.InitLogger()
 }
 
 func TestMock(t *testing.T) {

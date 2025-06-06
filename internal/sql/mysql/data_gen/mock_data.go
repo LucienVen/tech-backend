@@ -2,15 +2,16 @@ package data_gen
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/LucienVen/tech-backend/bootstrap"
 	"github.com/LucienVen/tech-backend/internal/entity"
 	"github.com/LucienVen/tech-backend/internal/utils"
-	"github.com/LucienVen/tech-backend/manager/log"
+	"github.com/LucienVen/tech-backend/pkg/log"
 	"github.com/brianvoe/gofakeit/v7"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"strings"
 )
 
 const (
