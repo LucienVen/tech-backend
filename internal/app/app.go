@@ -40,6 +40,10 @@ func (app *Application) Start() error {
 		return fmt.Errorf("配置初始化失败: %w", err)
 	}
 
+	// 打印数据库配置
+	fmt.Printf("DB 配置: host=%s port=%s user=%s pass=%s name=%s\n",
+		app.config.DBHost, app.config.DBPort, app.config.DBUser, app.config.DBPass, app.config.DBName)
+
 	// 2. 日志初始化
 	if err := app.initLogger(); err != nil {
 		return fmt.Errorf("日志初始化失败: %w", err)
@@ -65,6 +69,13 @@ func (app *Application) Start() error {
 		return fmt.Errorf("服务器初始化失败: %w", err)
 	}
 
+	// 7. 启动服务器
+	go func() {
+		if err := app.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Errorf("服务器启动失败: %v", err)
+		}
+	}()
+
 	return nil
 }
 
@@ -75,7 +86,7 @@ func (app *Application) Shutdown(ctx context.Context) error {
 
 // initConfig 初始化配置
 func (app *Application) initConfig() error {
-	config.Load(true, "cmd")
+	config.Load(true)
 	app.config = config.GetConfig()
 	return nil
 }
@@ -108,10 +119,7 @@ func (app *Application) initHealthCheck() error {
 // initRouter 初始化路由
 func (app *Application) initRouter() error {
 	// 设置 Gin 模式
-	gin.SetMode(gin.ReleaseMode)
-	if app.config.AppEnv == "development" {
-		gin.SetMode(gin.DebugMode)
-	}
+	gin.SetMode(app.config.GetGinMode())
 
 	// 初始化 API 处理函数
 	api.InitHandlers(app.db)
@@ -125,7 +133,7 @@ func (app *Application) initRouter() error {
 // initServer 初始化服务器
 func (app *Application) initServer() error {
 	app.server = &http.Server{
-		Addr:    ":" + app.config.DBPort,
+		Addr:    fmt.Sprintf(":%d", app.config.HTTPPort),
 		Handler: app.router.GetEngine(),
 	}
 	app.shutdown.Register(app.server)

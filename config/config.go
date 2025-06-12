@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
@@ -47,7 +48,13 @@ func Load(overload bool, configPath ...string) {
 	// 设置配置文件路径
 	var envPath string
 	if len(configPath) > 0 && configPath[0] != "" {
-		envPath = filepath.Join(configPath[0], ".env")
+		// 1. 首先检查环境变量指定的配置文件路径
+		if configFile := os.Getenv("CONFIG_FILE"); configFile != "" {
+			envPath = configFile
+		} else {
+			// 2. 使用默认配置文件路径（cmd/.env）
+			envPath = filepath.Join("cmd", ".env")
+		}
 	} else {
 		envPath = ".env"
 	}
@@ -108,4 +115,16 @@ func bindEnvs() {
 // GetConfig 获取配置
 func GetConfig() *Config {
 	return &conf
+}
+
+// GetGinMode 根据环境变量返回对应的 Gin 模式
+func (c *Config) GetGinMode() string {
+	switch c.AppEnv {
+	case "production":
+		return gin.ReleaseMode
+	case "testing":
+		return gin.TestMode
+	default:
+		return gin.DebugMode
+	}
 }

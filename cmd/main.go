@@ -11,6 +11,13 @@ import (
 )
 
 func main() {
+	// 打印当前工作目录
+	if wd, err := os.Getwd(); err != nil {
+		log.Errorf("获取工作目录失败: %v", err)
+	} else {
+		log.Infof("当前工作目录: %s", wd)
+	}
+
 	// 创建应用实例
 	application := app.NewApplication()
 
@@ -20,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// 等待中断信号
+	// 等待中断信号2
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
