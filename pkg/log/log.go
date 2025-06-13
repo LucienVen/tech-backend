@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
@@ -39,7 +41,18 @@ func InitLogger() {
 		appEnv = "development"
 	}
 
-	writerSyncer := getLogWriter(appName)
+	// 获取项目根目录
+	_, b, _, _ := runtime.Caller(0)
+	rootDir := filepath.Join(filepath.Dir(b), "../..")
+
+	// 创建日志目录
+	logDir := filepath.Join(rootDir, "logs")
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		panic(fmt.Sprintf("cannot create log directory: %v", err))
+	}
+
+	// 配置日志轮转
+	writerSyncer := getLogWriter(appName, logDir)
 	encoder := getEncoder()
 	level := getLogLevel(appEnv)
 	core := zapcore.NewCore(encoder, writerSyncer, level)
@@ -70,25 +83,17 @@ func getLogLevel(mode string) zapcore.Level {
 }
 
 // getLogWriter 获取写入器（文件 + 控制台）
-func getLogWriter(appName string) zapcore.WriteSyncer {
-	// 使用绝对路径
-	execPath, err := os.Executable()
-	if err != nil {
-		panic(fmt.Sprintf("cannot get executable path: %v", err))
+func getLogWriter(appName, logDir string) zapcore.WriteSyncer {
+	// 配置日志轮转
+	fileWriter := &lumberjack.Logger{
+		Filename:   filepath.Join(logDir, fmt.Sprintf("%s.log", appName)), // 日志文件路径
+		MaxSize:    100,                                                   // 单个文件最大大小，单位MB
+		MaxBackups: 10,                                                    // 保留旧文件的最大数量
+		MaxAge:     30,                                                    // 保留旧文件的最大天数
+		Compress:   true,                                                  // 是否压缩旧文件
 	}
 
-	logDir := filepath.Join(filepath.Dir(execPath), "logs")
-	if err := os.MkdirAll(logDir, 0755); err != nil {
-		panic(fmt.Sprintf("cannot create log directory: %v", err))
-	}
-
-	fileName := filepath.Join(logDir, fmt.Sprintf("%s.log", appName))
-	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(fmt.Sprintf("cannot open log file: %v", err))
-	}
-
-	fileSyncer := zapcore.AddSync(file)
+	fileSyncer := zapcore.AddSync(fileWriter)
 	consoleSyncer := zapcore.AddSync(os.Stdout)
 	return zapcore.NewMultiWriteSyncer(fileSyncer, consoleSyncer)
 }
@@ -152,6 +157,9 @@ func Debugf(template string, args ...interface{}) {
 // Sync 清理日志缓冲
 func Sync() {
 	if logger != nil {
-		_ = logger.Sync()
+		logger.Sync()
+	}
+	if sugarLogger != nil {
+		sugarLogger.Sync()
 	}
 }

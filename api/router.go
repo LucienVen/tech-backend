@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/LucienVen/tech-backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +17,7 @@ func NewRouter() *Router {
 
 	// 使用中间件
 	engine.Use(gin.Recovery())
-	engine.Use(gin.Logger())
+	engine.Use(middleware.Logger())
 
 	return &Router{
 		engine: engine,
