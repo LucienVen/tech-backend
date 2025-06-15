@@ -121,11 +121,8 @@ func (app *Application) initRouter() error {
 	// 设置 Gin 模式
 	gin.SetMode(app.config.GetGinMode())
 
-	// 初始化 API 处理函数
-	api.InitHandlers(app.db)
-
 	// 创建路由
-	app.router = api.NewRouter()
+	app.router = api.NewRouter(app.db)
 	app.router.RegisterRoutes()
 	return nil
 }

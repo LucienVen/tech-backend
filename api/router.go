@@ -1,17 +1,19 @@
 package api
 
 import (
+	"github.com/LucienVen/tech-backend/internal/db"
 	"github.com/LucienVen/tech-backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 // Router 路由管理器
 type Router struct {
-	engine *gin.Engine
+	engine  *gin.Engine
+	handler *Handler
 }
 
 // NewRouter 创建路由管理器
-func NewRouter() *Router {
+func NewRouter(db *db.GormDB) *Router {
 	// 创建 Gin 引擎
 	engine := gin.New()
 
@@ -20,7 +22,8 @@ func NewRouter() *Router {
 	engine.Use(middleware.Logger())
 
 	return &Router{
-		engine: engine,
+		engine:  engine,
+		handler: NewHandler(db),
 	}
 }
 
@@ -30,16 +33,16 @@ func (r *Router) RegisterRoutes() {
 	base := r.engine.Group("/api")
 	{
 		// 健康检查
-		base.GET("/health", HealthCheck)
-		base.GET("/ping", Ping)
+		base.GET("/health", r.handler.HealthCheck)
+		base.GET("/ping", r.handler.Ping)
 	}
 
 	// TODO: 添加更多路由组
 	// 例如：
 	// v1 := base.Group("/v1")
 	// {
-	//     v1.GET("/users", GetUsers)
-	//     v1.POST("/users", CreateUser)
+	//     v1.GET("/users", r.handler.GetUsers)
+	//     v1.POST("/users", r.handler.CreateUser)
 	// }
 }
 
