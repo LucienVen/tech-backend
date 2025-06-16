@@ -1,24 +1,15 @@
 package entity
 
-import (
-	"github.com/LucienVen/tech-backend/bootstrap"
-	"github.com/LucienVen/tech-backend/pkg/log"
-	sq "github.com/Masterminds/squirrel"
-	"go.uber.org/zap"
-)
+// Exam 考试表
+type Exam struct {
+	ID        string `json:"id" gorm:"column:id"`                 // 考试ID
+	Name      string `json:"name" gorm:"column:name"`             // 考试名称
+	SubjectID string `json:"subject_id" gorm:"column:subject_id"` // 学科ID
+	Year      int64  `json:"year" gorm:"column:year"`             // 考试年份
+	BaseModel
+}
 
-func GetAllExams() ([]Exam, error) {
-	db := bootstrap.App.GetDB()
-
-	exams := make([]Exam, 0)
-	sql, args, _ := sq.Select("*").From(ExamTable).Where(sq.Eq{"is_delete": 0}).ToSql()
-	//log.Info("GetAllExams sql:", zap.String("sql", sql), zap.Any("args", args))
-
-	err := db.Select(&exams, sql, args...)
-	if err != nil {
-		log.Error("failed to execute query", zap.Error(err))
-		return nil, err
-	}
-
-	return exams, nil
+// TableName 指定表名
+func (Exam) TableName() string {
+	return ExamTable
 }

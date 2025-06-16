@@ -1,5 +1,6 @@
 package entity
 
+// TableNames 数据库表名常量
 const (
 	ClassTable   = "class"   // 班级表
 	ExamTable    = "exam"    // 考试表
