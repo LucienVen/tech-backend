@@ -8,12 +8,15 @@ import (
 type Container struct {
 	Health *HealthController
 	// 在这里添加其他控制器
+	User *UserController
 }
 
 // NewContainer 创建控制器容器
 func NewContainer(db *db.GormDB) *Container {
+
 	return &Container{
 		Health: NewHealthController(db),
 		// 在这里初始化其他控制器
+		User: NewUSerController(db),
 	}
 }

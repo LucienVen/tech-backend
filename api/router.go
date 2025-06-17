@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/LucienVen/tech-backend/internal/controller"
 	"github.com/LucienVen/tech-backend/internal/db"
 	"github.com/LucienVen/tech-backend/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -8,8 +9,8 @@ import (
 
 // Router 路由管理器
 type Router struct {
-	engine  *gin.Engine
-	handler *Handler
+	engine      *gin.Engine
+	controllers *controller.Container
 }
 
 // NewRouter 创建路由管理器
@@ -22,8 +23,8 @@ func NewRouter(db *db.GormDB) *Router {
 	engine.Use(middleware.Logger())
 
 	return &Router{
-		engine:  engine,
-		handler: NewHandler(db),
+		engine:      engine,
+		controllers: controller.NewContainer(db),
 	}
 }
 
@@ -33,17 +34,21 @@ func (r *Router) RegisterRoutes() {
 	base := r.engine.Group("/api")
 	{
 		// 健康检查
-		base.GET("/health", r.handler.HealthCheck)
-		base.GET("/ping", r.handler.Ping)
+		base.GET("/health", r.controllers.Health.Check)
+		base.GET("/ping", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "pong",
+			})
+		})
 	}
 
 	// TODO: 添加更多路由组
 	// 例如：
-	// v1 := base.Group("/v1")
-	// {
-	//     v1.GET("/users", r.handler.GetUsers)
-	//     v1.POST("/users", r.handler.CreateUser)
-	// }
+	v1 := base.Group("/v1")
+	{
+		v1.GET("/users", r.controllers.User.Get)
+		// v1.POST("/users", r.controllers.User.Create)
+	}
 }
 
 // GetEngine 获取 Gin 引擎
