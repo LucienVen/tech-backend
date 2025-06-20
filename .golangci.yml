@@ -1,0 +1,4 @@
+version: "1"
+linters:
+  disable:
+    - golint

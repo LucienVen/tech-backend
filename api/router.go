@@ -48,6 +48,7 @@ func (r *Router) RegisterRoutes() {
 	{
 		v1.GET("/users", r.controllers.User.Get)
 		// v1.POST("/users", r.controllers.User.Create)
+		v1.POST("/register", controller.Register)
 	}
 }
 

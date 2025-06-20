@@ -17,6 +17,6 @@ func NewContainer(db *db.GormDB) *Container {
 	return &Container{
 		Health: NewHealthController(db),
 		// 在这里初始化其他控制器
-		User: NewUSerController(db),
+		User: NewUserController(db),
 	}
 }
