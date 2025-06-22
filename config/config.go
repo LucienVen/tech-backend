@@ -21,6 +21,13 @@ type Config struct {
 	DBPass   string `mapstructure:"DB_PASS"`
 	DBName   string `mapstructure:"DB_NAME"`
 	HTTPPort int64  `mapstructure:"HTTP_PORT"`
+
+	// PostgreSQL 配置
+	PGHost string `mapstructure:"PG_HOST"`
+	PGPort string `mapstructure:"PG_PORT"`
+	PGUser string `mapstructure:"PG_USER"`
+	PGPass string `mapstructure:"PG_PASS"`
+	PGName string `mapstructure:"PG_NAME"`
 }
 
 var (
@@ -110,6 +117,13 @@ func bindEnvs() {
 	v.BindEnv("DB_PASS")
 	v.BindEnv("DB_NAME")
 	v.BindEnv("HTTP_PORT")
+
+	// PostgreSQL 配置
+	v.BindEnv("PG_HOST")
+	v.BindEnv("PG_PORT")
+	v.BindEnv("PG_USER")
+	v.BindEnv("PG_PASS")
+	v.BindEnv("PG_NAME")
 }
 
 // GetConfig 获取配置

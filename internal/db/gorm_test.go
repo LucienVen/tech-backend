@@ -27,7 +27,7 @@ func TestGormDB(t *testing.T) {
 		cfg.DBName)
 
 	// 创建 GORM 实例
-	gormDB := NewGormDB(&cfg)
+	gormDB := NewGormDB(cfg)
 
 	// 测试连接
 	t.Run("测试数据库连接", func(t *testing.T) {
