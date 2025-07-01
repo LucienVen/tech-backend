@@ -1,8 +1,8 @@
 package api
 
 import (
+	appcontext "github.com/LucienVen/tech-backend/internal/appcontext"
 	"github.com/LucienVen/tech-backend/internal/controller"
-	"github.com/LucienVen/tech-backend/internal/db"
 	"github.com/LucienVen/tech-backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ type Router struct {
 }
 
 // NewRouter 创建路由管理器
-func NewRouter(db *db.GormDB) *Router {
+func NewRouter(appCtx *appcontext.AppContext) *Router {
 	// 创建 Gin 引擎
 	engine := gin.New()
 
@@ -24,7 +24,7 @@ func NewRouter(db *db.GormDB) *Router {
 
 	return &Router{
 		engine:      engine,
-		controllers: controller.NewContainer(db),
+		controllers: controller.NewContainer(appCtx),
 	}
 }
 
@@ -48,7 +48,8 @@ func (r *Router) RegisterRoutes() {
 	{
 		v1.GET("/users", r.controllers.User.Get)
 		// v1.POST("/users", r.controllers.User.Create)
-		v1.POST("/register", controller.Register)
+		v1.POST("/register", r.controllers.User.Register)
+		v1.GET("/captcha", r.controllers.Captcha.GetCaptcha)
 	}
 }
 

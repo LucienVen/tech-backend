@@ -34,11 +34,13 @@ func (m *ShutdownManager) Shutdown(ctx context.Context) error {
 	shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	// 按顺序关闭组件
+	// 按顺序关闭组件，并同步打印组件名称
 	for _, component := range m.components {
+		fmt.Printf("正在关闭组件: %T\n", component)
 		if err := component.Shutdown(shutdownCtx); err != nil {
 			return fmt.Errorf("组件关闭失败: %w", err)
 		}
+		fmt.Printf("组件已关闭: %T\n", component)
 	}
 
 	return nil

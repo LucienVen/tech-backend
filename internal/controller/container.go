@@ -1,22 +1,24 @@
 package controller
 
 import (
-	"github.com/LucienVen/tech-backend/internal/db"
+	appcontext "github.com/LucienVen/tech-backend/internal/appcontext"
+	"github.com/LucienVen/tech-backend/internal/repository"
 )
 
 // Container 控制器容器
 type Container struct {
 	Health *HealthController
 	// 在这里添加其他控制器
-	User *UserController
+	User    *UserController
+	Captcha *CaptchaController
 }
 
 // NewContainer 创建控制器容器
-func NewContainer(db *db.GormDB) *Container {
-
+func NewContainer(appCtx *appcontext.AppContext) *Container {
+	captchaCtrl := NewCaptchaController(appCtx.Redis)
 	return &Container{
-		Health: NewHealthController(db),
-		// 在这里初始化其他控制器
-		User: NewUserController(db),
+		Health:  NewHealthController(appCtx.DB),
+		User:    NewUserController(repository.NewUserRepository(appCtx.DB), captchaCtrl),
+		Captcha: captchaCtrl,
 	}
 }

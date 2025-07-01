@@ -13,6 +13,7 @@ import (
 )
 
 // GormDB GORM 数据库管理器
+// GormDB 实现了 db.DB 接口
 type GormDB struct {
 	db  *gorm.DB
 	cfg *config.Config
@@ -115,4 +116,9 @@ func (g *GormDB) Transaction(fc func(tx *gorm.DB) error) error {
 // Shutdown 实现 Shutdownable 接口
 func (g *GormDB) Shutdown(ctx context.Context) error {
 	return g.Close()
+}
+
+// GetType 返回数据库类型
+func (g *GormDB) GetType() string {
+	return DBTypeMySQL
 }

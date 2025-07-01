@@ -8,6 +8,7 @@ import (
 
 	"github.com/LucienVen/tech-backend/api"
 	"github.com/LucienVen/tech-backend/config"
+	appcontext "github.com/LucienVen/tech-backend/internal/appcontext"
 	"github.com/LucienVen/tech-backend/internal/db"
 	"github.com/LucienVen/tech-backend/pkg/log"
 	"github.com/gin-gonic/gin"
@@ -16,13 +17,15 @@ import (
 // Application 应用程序核心结构
 type Application struct {
 	config   *config.Config
-	db       *db.GormDB
+	db       db.DB
 	router   *api.Router
 	health   *db.HealthChecker
 	server   *http.Server
 	logger   *log.Logger
 	ctx      context.Context
 	shutdown *ShutdownManager
+	redis    *db.RedisClient
+	appCtx   *appcontext.AppContext
 }
 
 // NewApplication 创建新的应用实例
@@ -69,6 +72,12 @@ func (app *Application) Start() error {
 		return fmt.Errorf("服务器初始化失败: %w", err)
 	}
 
+	if err := app.initRedis(); err != nil {
+		return fmt.Errorf("redis初始化失败: %w", err)
+	}
+
+	app.appCtx = &appcontext.AppContext{DB: app.db, Redis: app.redis}
+
 	// 7. 启动服务器
 	go func() {
 		if err := app.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -100,7 +109,14 @@ func (app *Application) initLogger() error {
 
 // initDatabase 初始化数据库
 func (app *Application) initDatabase() error {
-	app.db = db.NewGormDB(app.config)
+	switch app.config.DBType {
+	case "mysql":
+		app.db = db.NewGormDB(app.config)
+	case "pg":
+		app.db = db.NewGormPGDB(app.config)
+	default:
+		return fmt.Errorf("不支持的数据库类型: %s", app.config.DBType)
+	}
 	if err := app.db.Connect(); err != nil {
 		return fmt.Errorf("数据库连接失败: %w", err)
 	}
@@ -118,11 +134,8 @@ func (app *Application) initHealthCheck() error {
 
 // initRouter 初始化路由
 func (app *Application) initRouter() error {
-	// 设置 Gin 模式
 	gin.SetMode(app.config.GetGinMode())
-
-	// 创建路由
-	app.router = api.NewRouter(app.db)
+	app.router = api.NewRouter(app.appCtx)
 	app.router.RegisterRoutes()
 	return nil
 }
@@ -134,5 +147,24 @@ func (app *Application) initServer() error {
 		Handler: app.router.GetEngine(),
 	}
 	app.shutdown.Register(app.server)
+	return nil
+}
+
+// initPGDatabase 初始化 PostgreSQL 数据库
+func (app *Application) initPGDatabase() error {
+	app.db = db.NewGormPGDB(app.config)
+	if err := app.db.Connect(); err != nil {
+		return fmt.Errorf("数据库连接失败: %w", err)
+	}
+	app.shutdown.Register(app.db)
+	return nil
+}
+
+func (app *Application) initRedis() error {
+	app.redis = db.NewRedisClient(app.config.RedisAddr, app.config.RedisPassword, 0)
+	if err := app.redis.Ping(app.ctx); err != nil {
+		return err
+	}
+	app.shutdown.Register(app.redis)
 	return nil
 }

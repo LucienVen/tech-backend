@@ -13,6 +13,7 @@ import (
 )
 
 // GormPGDB GORM PostgreSQL 数据库管理器
+// GormPGDB 实现了 db.DB 接口
 type GormPGDB struct {
 	db  *gorm.DB
 	cfg *config.Config
@@ -115,4 +116,9 @@ func (g *GormPGDB) Transaction(fc func(tx *gorm.DB) error) error {
 // Shutdown 实现 Shutdownable 接口
 func (g *GormPGDB) Shutdown(ctx context.Context) error {
 	return g.Close()
+}
+
+// GetType 返回数据库类型
+func (g *GormPGDB) GetType() string {
+	return DBTypePG
 }

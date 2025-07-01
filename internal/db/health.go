@@ -9,13 +9,13 @@ import (
 
 // HealthChecker 健康检查器
 type HealthChecker struct {
-	db     *GormDB
+	db     DB
 	ticker *time.Ticker
 	done   chan struct{}
 }
 
 // NewHealthChecker 创建健康检查器
-func NewHealthChecker(db *GormDB) *HealthChecker {
+func NewHealthChecker(db DB) *HealthChecker {
 	return &HealthChecker{
 		db:   db,
 		done: make(chan struct{}),
@@ -29,16 +29,28 @@ func (h *HealthChecker) Start(ctx context.Context, interval time.Duration) {
 		for {
 			select {
 			case <-h.ticker.C:
-				if err := h.db.Ping(); err != nil {
-					log.Errorf("数据库心跳检测失败: %v", err)
-					// 尝试重连
-					if err := h.db.Connect(); err != nil {
-						log.Errorf("数据库重连失败: %v", err)
-					} else {
-						log.Info("数据库重连成功")
+				// 只有 db 实现了 Ping/Connect 方法时才调用
+				if pinger, ok := h.db.(interface{ Ping() error }); ok {
+					dbType := "unknown"
+					switch h.db.(type) {
+					case *GormDB:
+						dbType = "MySQL"
+					case *GormPGDB:
+						dbType = "PostgreSQL"
 					}
-				} else {
-					log.Info("数据库心跳检测正常")
+
+					if err := pinger.Ping(); err != nil {
+						log.Errorf("[%s] 数据库心跳检测失败: %v", dbType, err)
+						if connector, ok := h.db.(interface{ Connect() error }); ok {
+							if err := connector.Connect(); err != nil {
+								log.Errorf("[%s] 数据库重连失败: %v", dbType, err)
+							} else {
+								log.Infof("[%s] 数据库重连成功", dbType)
+							}
+						}
+					} else {
+						log.Infof("[%s] 数据库心跳检测正常", dbType)
+					}
 				}
 			case <-ctx.Done():
 				h.Stop()

@@ -28,6 +28,13 @@ type Config struct {
 	PGUser string `mapstructure:"PG_USER"`
 	PGPass string `mapstructure:"PG_PASS"`
 	PGName string `mapstructure:"PG_NAME"`
+
+	// reids 配置
+	RedisAddr     string `mapstructure:"REDIS_ADDR"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
+
+	// DBType 用于指定数据库类型，例如 "mysql" 或 "pg"
+	DBType string `mapstructure:"DB_TYPE"`
 }
 
 var (
@@ -124,6 +131,12 @@ func bindEnvs() {
 	v.BindEnv("PG_USER")
 	v.BindEnv("PG_PASS")
 	v.BindEnv("PG_NAME")
+
+	// Redis 配置
+	v.BindEnv("REDIS_ADDR")
+	v.BindEnv("REDIS_PASSWORD")
+	// 数据库类型配置
+	v.BindEnv("DB_TYPE")
 }
 
 // GetConfig 获取配置
