@@ -57,6 +57,12 @@ func (app *Application) Start() error {
 		return fmt.Errorf("数据库初始化失败: %w", err)
 	}
 
+	if err := app.initRedis(); err != nil {
+		return fmt.Errorf("redis初始化失败: %w", err)
+	}
+
+	app.appCtx = &appcontext.AppContext{DB: app.db, Redis: app.redis}
+
 	// 4. 健康检查初始化
 	if err := app.initHealthCheck(); err != nil {
 		return fmt.Errorf("健康检查初始化失败: %w", err)
@@ -71,12 +77,6 @@ func (app *Application) Start() error {
 	if err := app.initServer(); err != nil {
 		return fmt.Errorf("服务器初始化失败: %w", err)
 	}
-
-	if err := app.initRedis(); err != nil {
-		return fmt.Errorf("redis初始化失败: %w", err)
-	}
-
-	app.appCtx = &appcontext.AppContext{DB: app.db, Redis: app.redis}
 
 	// 7. 启动服务器
 	go func() {

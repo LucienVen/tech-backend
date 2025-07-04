@@ -3,6 +3,7 @@ package controller
 import (
 	appcontext "github.com/LucienVen/tech-backend/internal/appcontext"
 	"github.com/LucienVen/tech-backend/internal/repository"
+	"github.com/LucienVen/tech-backend/internal/service"
 )
 
 // Container 控制器容器
@@ -15,10 +16,10 @@ type Container struct {
 
 // NewContainer 创建控制器容器
 func NewContainer(appCtx *appcontext.AppContext) *Container {
-	captchaCtrl := NewCaptchaController(appCtx.Redis)
+	captchaSvc := service.NewCaptchaService(appCtx.Redis)
 	return &Container{
 		Health:  NewHealthController(appCtx.DB),
-		User:    NewUserController(repository.NewUserRepository(appCtx.DB), captchaCtrl),
-		Captcha: captchaCtrl,
+		User:    NewUserController(repository.NewUserRepository(appCtx.DB), captchaSvc),
+		Captcha: NewCaptchaController(captchaSvc),
 	}
 }

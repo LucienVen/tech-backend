@@ -1,54 +1,30 @@
 package controller
 
 import (
-	"context"
-	"time"
-
-	"github.com/LucienVen/tech-backend/internal/db"
 	"github.com/LucienVen/tech-backend/internal/errors"
 	"github.com/LucienVen/tech-backend/internal/response"
+	"github.com/LucienVen/tech-backend/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/mojocn/base64Captcha"
 )
 
-// RedisStore 实现 base64Captcha.Store 接口，持有 *db.RedisClient
-var _ base64Captcha.Store = (*RedisStore)(nil)
-
-type RedisStore struct {
-	redis *db.RedisClient
-}
-
-func (s *RedisStore) Set(id, value string) error {
-	return s.redis.GetClient().Set(context.Background(), id, value, 5*time.Minute).Err()
-}
-func (s *RedisStore) Get(id string, clear bool) string {
-	val, _ := s.redis.GetClient().Get(context.Background(), id).Result()
-	if clear {
-		s.redis.GetClient().Del(context.Background(), id)
-	}
-	return val
-}
-func (s *RedisStore) Verify(id, answer string, clear bool) bool {
-	v := s.Get(id, clear)
-	return v == answer
-}
-
-// CaptchaController 验证码控制器
+// CaptchaController 负责验证码相关接口
+// 依赖 service.CaptchaVerifier 进行业务处理
+// 只处理 HTTP 路由与参数转发
 type CaptchaController struct {
-	store base64Captcha.Store
+	captchaService service.CaptchaVerifier
 }
 
-func NewCaptchaController(redisClient *db.RedisClient) *CaptchaController {
+// NewCaptchaController 创建 CaptchaController 实例
+func NewCaptchaController(captchaService service.CaptchaVerifier) *CaptchaController {
 	return &CaptchaController{
-		store: &RedisStore{redis: redisClient},
+		captchaService: captchaService,
 	}
 }
 
-// GetCaptcha 生成图片验证码
+// GetCaptcha 生成图片验证码并返回 base64 图片字符串
+// @route GET /captcha
 func (c *CaptchaController) GetCaptcha(ctx *gin.Context) {
-	driver := base64Captcha.NewDriverDigit(80, 240, 5, 0.7, 80)
-	captcha := base64Captcha.NewCaptcha(driver, c.store)
-	id, b64s, _, err := captcha.Generate()
+	id, b64s, err := c.captchaService.Generate()
 	if err != nil {
 		response.Error(ctx, errors.ErrCodeSystemError, "验证码生成失败")
 		return
@@ -57,4 +33,10 @@ func (c *CaptchaController) GetCaptcha(ctx *gin.Context) {
 		"captcha_id":    id,
 		"captcha_image": b64s,
 	})
+}
+
+// Verify 校验验证码
+// 仅供内部调用，不暴露为 HTTP 接口
+func (c *CaptchaController) Verify(id, code string, clear bool) bool {
+	return c.captchaService.Verify(id, code, clear)
 }

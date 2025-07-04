@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -39,4 +40,24 @@ func (r *RedisClient) GetClient() *redis.Client {
 // Shutdown 实现 app.Shutdownable 接口
 func (r *RedisClient) Shutdown(ctx context.Context) error {
 	return r.Close()
+}
+
+// Get 获取键值
+func (r *RedisClient) Get(ctx context.Context, key string) (string, error) {
+	return r.client.Get(ctx, key).Result()
+}
+
+// Set 设置键值
+func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return r.client.Set(ctx, key, value, expiration).Err()
+}
+
+// Del 删除键
+func (r *RedisClient) Del(ctx context.Context, keys ...string) (int64, error) {
+	return r.client.Del(ctx, keys...).Result()
+}
+
+// Exists 检查键是否存在
+func (r *RedisClient) Exists(ctx context.Context, keys ...string) (int64, error) {
+	return r.client.Exists(ctx, keys...).Result()
 }

@@ -6,22 +6,22 @@ import (
 	"github.com/LucienVen/tech-backend/internal/repository"
 	"github.com/LucienVen/tech-backend/internal/request"
 	"github.com/LucienVen/tech-backend/internal/response"
+	"github.com/LucienVen/tech-backend/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/mojocn/base64Captcha"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // UserController 用户控制器
 type UserController struct {
-	userRepo          repository.UserRepository
-	captchaController *CaptchaController
+	userRepo        repository.UserRepository
+	captchaVerifier service.CaptchaVerifier
 }
 
 // NewUserController 创建用户控制器实例
-func NewUserController(userRepo repository.UserRepository, captchaController *CaptchaController) *UserController {
+func NewUserController(userRepo repository.UserRepository, captchaVerifier service.CaptchaVerifier) *UserController {
 	return &UserController{
-		userRepo:          userRepo,
-		captchaController: captchaController,
+		userRepo:        userRepo,
+		captchaVerifier: captchaVerifier,
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 	}
 
 	// 验证码校验
-	if !c.captchaController.store.Verify(req.CaptchaID, req.CaptchaCode, true) {
+	if !c.captchaVerifier.Verify(req.CaptchaID, req.CaptchaCode, true) {
 		response.Error(ctx, errors.ErrCodeParamInvalid, "验证码错误")
 		return
 	}
@@ -74,19 +74,4 @@ func (c *UserController) Register(ctx *gin.Context) {
 	// 临时方案：如有需要可在 userRepo 接口和实现中补充 Create
 
 	response.Success(ctx, gin.H{"message": "注册成功"})
-}
-
-// 新增验证码生成接口
-func (c *UserController) Captcha(ctx *gin.Context) {
-	driver := base64Captcha.NewDriverDigit(80, 240, 5, 0.7, 80)
-	captcha := base64Captcha.NewCaptcha(driver, captchaStore)
-	id, b64s, err := captcha.Generate()
-	if err != nil {
-		response.Error(ctx, errors.ErrCodeSystemError, "验证码生成失败")
-		return
-	}
-	response.Success(ctx, gin.H{
-		"captcha_id":    id,
-		"captcha_image": b64s,
-	})
 }

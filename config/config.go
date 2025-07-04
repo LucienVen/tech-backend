@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -61,15 +60,26 @@ func Load(overload bool, configPath ...string) {
 
 	// 设置配置文件路径
 	var envPath string
+	// if len(configPath) > 0 && configPath[0] != "" {
+	// 	// 1. 首先检查环境变量指定的配置文件路径
+	// 	if configFile := os.Getenv("CONFIG_FILE"); configFile != "" {
+	// 		envPath = configFile
+	// 	} else {
+	// 		// 2. 使用默认配置文件路径（cmd/.env）
+	// 		envPath = filepath.Join("cmd", ".env")
+	// 	}
+	// } else {
+	// 	envPath = ".env"
+	// }
+
 	if len(configPath) > 0 && configPath[0] != "" {
-		// 1. 首先检查环境变量指定的配置文件路径
-		if configFile := os.Getenv("CONFIG_FILE"); configFile != "" {
-			envPath = configFile
-		} else {
-			// 2. 使用默认配置文件路径（cmd/.env）
-			envPath = filepath.Join("cmd", ".env")
-		}
+		// 如果外部调用者传了绝对路径或想要用的路径，就尊重它
+		envPath = configPath[0]
+	} else if configFile := os.Getenv("CONFIG_FILE"); configFile != "" {
+		// 如果没传，但设置了 CONFIG_FILE 环境变量，就用它
+		envPath = configFile
 	} else {
+		// 默认 fall back
 		envPath = ".env"
 	}
 
