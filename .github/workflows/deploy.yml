@@ -34,8 +34,10 @@ jobs:
             git fetch --all
             git reset --hard origin/main
 
-            echo "[INFO] Building and restarting..."
-            docker compose up -d --build
+            echo "[INFO] Building..."
+            docker-compose build
+            echo "[INFO] Starting..."
+            docker-compose up -d
 
             echo "[INFO] Compose status:"
             docker compose ps
