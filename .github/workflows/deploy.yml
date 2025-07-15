@@ -35,9 +35,9 @@ jobs:
             git reset --hard origin/main
 
             echo "[INFO] Building..."
-            docker-compose build
+            docker compose build
             echo "[INFO] Starting..."
-            docker-compose up -d
+            docker compose up -d
 
             echo "[INFO] Compose status:"
             docker compose ps
