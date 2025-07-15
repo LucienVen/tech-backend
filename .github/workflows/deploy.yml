@@ -1,0 +1,29 @@
+name: Deploy to Remote Server (Self-built)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (for future use / consistency)
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/lxt/project/tech-backend
+            echo "[INFO] Pulling latest code..."
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "[INFO] Building and restarting containers..."
+            docker-compose up -d --build
