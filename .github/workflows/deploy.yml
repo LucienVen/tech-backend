@@ -21,6 +21,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_PORT }}
           script: |
+            set -e
+
             cd /home/lxt/project/tech-backend/cmd
             printf '%s\n' "${{ secrets.ENV_FILE_CONTENT }}" > .env
 
@@ -39,5 +41,13 @@ jobs:
             echo "[INFO] Starting..."
             docker compose up -d
 
-            echo "[INFO] Compose status:"
-            docker compose ps
+            echo "[INFO] Checking containers..."
+            sleep 3
+
+            if ! docker compose ps | grep "Up"; then
+                echo "[ERROR] No running containers detected!"
+                docker compose ps
+                exit 1
+            fi
+
+            echo "[SUCCESS] All containers are up"
