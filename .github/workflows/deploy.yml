@@ -21,37 +21,21 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_PORT }}
           script: |
-            echo "✅ [INFO] SSH connected."
+            cd /home/lxt/project/tech-backend/cmd
+            printf '%s\n' "${{ secrets.ENV_FILE_CONTENT }}" > .env
 
-            echo "✅ [INFO] Initial PWD on server:"
-            pwd
-
-            echo "✅ [INFO] Listing home directory:"
-            ls -l
-
-            echo "✅ [INFO] Changing to project directory..."
+            echo "[INFO] Changing to project directory..."
             cd /home/lxt/project/tech-backend
 
-            echo "✅ [INFO] Confirming project directory:"
-            pwd
-
-            echo "✅ [INFO] Listing project contents:"
-            ls -l
-
-            echo "✅ [INFO] Checking .env contents:"
+            echo "[INFO] Showing .env"
             cat .env
 
-            echo "✅ [INFO] Pulling latest code from git..."
+            echo "[INFO] Pulling latest code..."
             git fetch --all
             git reset --hard origin/main
 
-            echo "✅ [INFO] Showing final working tree:"
-            git status
-
-            echo "✅ [INFO] Docker compose version:"
-            docker compose version
-
-            echo "✅ [INFO] Building and restarting containers..."
+            echo "[INFO] Building and restarting..."
             docker compose up -d --build
 
-            echo "✅ [INFO] Deployment complete."
+            echo "[INFO] Compose status:"
+            docker compose ps

@@ -1,9 +1,8 @@
 services:
   tech-backend:
     build: .
-    env_file: ./cmd/.env
     ports:
-      - "${HTTP_PORT}:${HTTP_PORT}"
+      - "8080:8080"
     restart: always
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:${HTTP_PORT}/health"]
