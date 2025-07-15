@@ -26,4 +26,4 @@ jobs:
             git reset --hard origin/main
 
             echo "[INFO] Building and restarting containers..."
-            docker-compose up -d --build
+            docker compose up -d --build
