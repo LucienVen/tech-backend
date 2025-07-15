@@ -1,4 +1,4 @@
-name: Deploy to Remote Server (Self-built)
+name: Deploy to Remote Server
 
 on:
   push:
@@ -10,20 +10,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (for future use / consistency)
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
           script: |
+            echo "✅ [INFO] SSH connected."
+
+            echo "✅ [INFO] Initial PWD on server:"
+            pwd
+
+            echo "✅ [INFO] Listing home directory:"
+            ls -l
+
+            echo "✅ [INFO] Changing to project directory..."
             cd /home/lxt/project/tech-backend
-            echo "[INFO] Pulling latest code..."
+
+            echo "✅ [INFO] Confirming project directory:"
+            pwd
+
+            echo "✅ [INFO] Listing project contents:"
+            ls -l
+
+            echo "✅ [INFO] Checking .env contents:"
+            cat .env
+
+            echo "✅ [INFO] Pulling latest code from git..."
             git fetch --all
             git reset --hard origin/main
 
-            echo "[INFO] Building and restarting containers..."
+            echo "✅ [INFO] Showing final working tree:"
+            git status
+
+            echo "✅ [INFO] Docker compose version:"
+            docker compose version
+
+            echo "✅ [INFO] Building and restarting containers..."
             docker compose up -d --build
+
+            echo "✅ [INFO] Deployment complete."
