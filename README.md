@@ -35,3 +35,13 @@
   - 构建 Docker 镜像
   - 推送到远程服务器（可用 ssh/scp 或远程 docker context）
   - 在远程服务器上 docker-compose up -d
+
+~~~
+✅ 支持主分支推送自动触发
+✅ 支持远程服务器多端口可配
+✅ 自动更新 .env 文件（用 GitHub Secrets 里的内容）
+✅ 严格错误检测（失败即退出）
+✅ 详细日志输出到 Actions 页面
+✅ 检查 Docker Compose 服务状态
+~~~
+
