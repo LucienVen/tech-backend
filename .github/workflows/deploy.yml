@@ -29,8 +29,8 @@ jobs:
             echo "[INFO] Changing to project directory..."
             cd /home/lxt/project/tech-backend
 
-            echo "[INFO] Showing .env"
-            cat .env
+            echo "[INFO] Showing .env -- not need pass !!!"
+            # cat .env
 
             echo "[INFO] Pulling latest code..."
             git fetch --all
