@@ -17,10 +17,13 @@ RUN CGO_ENABLED=0 go build -o tech-backend ./cmd/main.go
 
 
 # ---------- Runtime stage ----------
-FROM gcr.io/distroless/base-debian12
+# FROM gcr.io/distroless/base-debian12
+FROM debian:bookworm-slim
 
 WORKDIR /app
 COPY --from=builder /app/tech-backend .
+# 把你的配置文件复制到 /app/.env
+COPY cmd/.env .env
 
 # 暴露端口
 EXPOSE 8080

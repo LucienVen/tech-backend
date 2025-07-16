@@ -1,6 +1,7 @@
 services:
   tech-backend:
     build: .
+    command: ["sleep", "infinity"]
     ports:
       - "8080:8080"
     restart: always
