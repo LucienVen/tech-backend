@@ -11,10 +11,10 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Start Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
@@ -24,31 +24,65 @@ jobs:
           script: |
             set -e
 
+            echo "======================================="
+            echo "[INFO] Connecting to Remote Server"
+            echo "======================================="
             cd /home/lxt/project/tech-backend/cmd
-            printf '%s\n' "${{ secrets.ENV_FILE_CONTENT }}" > .env
 
-            echo "[INFO] Changing to project directory..."
+            echo
+            echo "======================================="
+            echo "[INFO] Writing .env configuration"
+            echo "======================================="
+            printf '%s\n' "${{ secrets.ENV_FILE_CONTENT }}" > .env
+            echo "[INFO] .env file updated ✅"
+
             cd /home/lxt/project/tech-backend
 
-            echo "[INFO] Showing .env -- not need pass !!!"
-            # cat .env
-
-            echo "[INFO] Pulling latest code..."
+            echo
+            echo "======================================="
+            echo "[INFO] Fetching Latest Code"
+            echo "======================================="
             git fetch --all
             git reset --hard origin/main
+            git status
 
-            echo "[INFO] Building..."
+            echo
+            echo "======================================="
+            echo "[INFO] Showing project structure"
+            echo "======================================="
+            ls -lah
+            ls -lah cmd/
+
+            echo
+            echo "======================================="
+            echo "[INFO] Building Docker images"
+            echo "======================================="
             docker compose build
-            echo "[INFO] Starting..."
+
+            echo
+            echo "======================================="
+            echo "[INFO] Starting Docker containers"
+            echo "======================================="
             docker compose up -d
 
-            echo "[INFO] Checking containers..."
-            sleep 3
+            echo
+            echo "======================================="
+            echo "[INFO] Waiting for containers to start"
+            echo "======================================="
+            sleep 5
 
-            if ! docker compose ps | grep "Up"; then
-                echo "[ERROR] No running containers detected!"
-                docker compose ps
-                exit 1
+            echo
+            echo "======================================="
+            echo "[INFO] Verifying running containers"
+            echo "======================================="
+            docker compose ps
+
+            if [ "$(docker compose ps | grep -c 'Up')" -eq 0 ]; then
+              echo
+              echo "[ERROR] ❌ No containers are Up!"
+              docker compose ps
+              exit 1
             fi
 
-            echo "[SUCCESS] All containers are up"
+            echo
+            echo "✅ [SUCCESS] All containers are up and running"
