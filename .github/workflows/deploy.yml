@@ -47,12 +47,6 @@ jobs:
 
             echo
             echo "======================================="
-            echo "[INFO] Show .env (for debugging)"
-            echo "======================================="
-            cat .env
-
-            echo
-            echo "======================================="
             echo "[INFO] Building & Starting Docker Containers"
             echo "======================================="
             docker compose down
