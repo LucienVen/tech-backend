@@ -1,5 +1,5 @@
 # ---------- Build stage ----------
-FROM golang:1.24.1-bookworm AS builder
+FROM golang:1.24.1 AS builder
 
 # 设置 Go 模块代理（可选）
 ENV GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
@@ -13,9 +13,7 @@ RUN go mod download
 # 再复制源码
 COPY . .
 
-# 注意这里我们不强制 CGO_ENABLED=0
-# 保证 cgo 能工作
-RUN go build -o tech-backend ./cmd/main.go
+RUN CGO_ENABLED=0 go build -o tech-backend ./cmd/main.go
 
 
 # ---------- Runtime stage ----------
