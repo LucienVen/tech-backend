@@ -5,6 +5,8 @@ services:
     ports:
       - "8080:8080"
     restart: always
+    networks:
+      - tech-net
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:${HTTP_PORT}/health"]
     #   interval: 30s
