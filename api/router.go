@@ -43,6 +43,7 @@ func (r *Router) RegisterRoutes() {
 	}
 
 	// TODO: 添加更多路由组
+	// 后续迁移到 v1 文件夹
 	// 例如：
 	v1 := base.Group("/v1")
 	{
@@ -50,6 +51,7 @@ func (r *Router) RegisterRoutes() {
 		// v1.POST("/users", r.controllers.User.Create)
 		v1.POST("/register", r.controllers.User.Register)
 		v1.GET("/captcha", r.controllers.Captcha.GetCaptcha)
+		v1.GET("/verify-email", r.controllers.Mail.VerifyEmail) // 邮箱验证
 	}
 }
 

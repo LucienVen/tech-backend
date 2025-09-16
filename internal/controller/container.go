@@ -12,6 +12,7 @@ type Container struct {
 	// 在这里添加其他控制器
 	User    *UserController
 	Captcha *CaptchaController
+	Mail    *MailController
 }
 
 // NewContainer 创建控制器容器
@@ -21,5 +22,6 @@ func NewContainer(appCtx *appcontext.AppContext) *Container {
 		Health:  NewHealthController(appCtx.DB),
 		User:    NewUserController(repository.NewUserRepository(appCtx.DB), captchaSvc),
 		Captcha: NewCaptchaController(captchaSvc),
+		Mail:    NewMailController(captchaSvc),
 	}
 }
