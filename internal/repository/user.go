@@ -9,9 +9,11 @@ import (
 
 // UserRepository 用户仓储接口
 type UserRepository interface {
-	Exists(username, email string) (bool, error)
+	//Exists(username, email string) (bool, error)
 	Create(user *entity.User) error
 	// 可扩展更多方法
+	ExistsByUsername(username string) (bool, error)
+	ExistsByEmail(email string) (bool, error)
 }
 
 // MySQL 实现
@@ -24,19 +26,31 @@ func NewUserRepositoryMySQL(db *gorm.DB) UserRepository {
 	return &userRepositoryMySQL{db: db}
 }
 
-func (r *userRepositoryMySQL) Exists(username, email string) (bool, error) {
+//func (r *userRepositoryMySQL) Exists(username, email string) (bool, error) {
+//	var count int64
+//	db := r.db.Model(&entity.User{})
+//	if username != "" && email != "" {
+//		db = db.Where("username = ? OR email = ?", username, email)
+//	} else if username != "" {
+//		db = db.Where("username = ?", username)
+//	} else if email != "" {
+//		db = db.Where("email = ?", email)
+//	} else {
+//		return false, nil // 两个都空，直接返回不存在
+//	}
+//	err := db.Count(&count).Error
+//	return count > 0, err
+//}
+
+func (r *userRepositoryMySQL) ExistsByUsername(username string) (bool, error) {
 	var count int64
-	db := r.db.Model(&entity.User{})
-	if username != "" && email != "" {
-		db = db.Where("username = ? OR email = ?", username, email)
-	} else if username != "" {
-		db = db.Where("username = ?", username)
-	} else if email != "" {
-		db = db.Where("email = ?", email)
-	} else {
-		return false, nil // 两个都空，直接返回不存在
-	}
-	err := db.Count(&count).Error
+	err := r.db.Model(&entity.User{}).Where("username = ?", username).Count(&count).Error
+	return count > 0, err
+}
+
+func (r *userRepositoryMySQL) ExistsByEmail(email string) (bool, error) {
+	var count int64
+	err := r.db.Model(&entity.User{}).Where("email = ?", email).Count(&count).Error
 	return count > 0, err
 }
 
@@ -54,19 +68,31 @@ func NewUserRepositoryPG(db *gorm.DB) UserRepository {
 	return &userRepositoryPG{db: db}
 }
 
-func (r *userRepositoryPG) Exists(username, email string) (bool, error) {
+//func (r *userRepositoryPG) Exists(username, email string) (bool, error) {
+//	var count int64
+//	db := r.db.Model(&entity.User{})
+//	if username != "" && email != "" {
+//		db = db.Where("username = $1 OR email = $2", username, email)
+//	} else if username != "" {
+//		db = db.Where("username = $1", username)
+//	} else if email != "" {
+//		db = db.Where("email = $1", email)
+//	} else {
+//		return false, nil // 两个都空，直接返回不存在
+//	}
+//	err := db.Count(&count).Error
+//	return count > 0, err
+//}
+
+func (r *userRepositoryPG) ExistsByUsername(username string) (bool, error) {
 	var count int64
-	db := r.db.Model(&entity.User{})
-	if username != "" && email != "" {
-		db = db.Where("username = $1 OR email = $2", username, email)
-	} else if username != "" {
-		db = db.Where("username = $1", username)
-	} else if email != "" {
-		db = db.Where("email = $1", email)
-	} else {
-		return false, nil // 两个都空，直接返回不存在
-	}
-	err := db.Count(&count).Error
+	err := r.db.Model(&entity.User{}).Where("username = ?", username).Count(&count).Error
+	return count > 0, err
+}
+
+func (r *userRepositoryPG) ExistsByEmail(email string) (bool, error) {
+	var count int64
+	err := r.db.Model(&entity.User{}).Where("email = ?", email).Count(&count).Error
 	return count > 0, err
 }
 

@@ -26,7 +26,7 @@ type User struct {
 }
 
 // TableName 指定表名
-func (User) TableName() string {
+func (u *User) TableName() string {
 	return "users"
 }
 
@@ -40,4 +40,43 @@ func NewUser(username, nickName, passwd, phone, email string) *User {
 		Phone:     phone,
 		Email:     email,
 	}
+}
+
+// 用户状态事件常量
+const (
+	UserEventActivate = "activate" // 激活
+	UserEventDisable  = "disable"  // 封号
+	UserEventLogout   = "logout"   // 注销
+	UserEventDelete   = "delete"   // 删除
+)
+
+// 用户状态转移表
+var userStatusTransitions = map[int8]map[string]int8{
+	UserStatusInactive: {
+		UserEventActivate: UserStatusActive, // 激活
+	},
+	UserStatusActive: {
+		UserEventDisable: UserStatusDisabled, // 封号
+		UserEventLogout:  UserStatusLogout,   // 注销
+		UserEventDelete:  UserStatusDeleted,  // 删除
+	},
+	UserStatusDisabled: {
+		UserEventActivate: UserStatusActive,  // 解封
+		UserEventDelete:   UserStatusDeleted, // 删除
+	},
+	UserStatusLogout: {
+		UserEventActivate: UserStatusActive,  // 恢复
+		UserEventDelete:   UserStatusDeleted, // 删除
+	},
+}
+
+// TransitionUserStatus 用户状态转移
+// event: 事件名，建议使用 UserEventActivate/UserEventDisable/UserEventLogout/UserEventDelete
+// 返回 true 表示转移成功，false 表示非法转移
+func (u *User) TransitionUserStatus(event string) bool {
+	if next, ok := userStatusTransitions[u.Status][event]; ok {
+		u.Status = next
+		return true
+	}
+	return false
 }
