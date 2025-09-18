@@ -15,6 +15,13 @@ func NewMailController(captchaService service.CaptchaVerifier) *MailController {
 	}
 }
 
+// 检验
 func (m *MailController) VerifyEmail(ctx *gin.Context) {
+	//token := ctx.Query("token")
+
+}
+
+// 发送验证邮件
+func (m *MailController) SendVerifyEmail(ctx *gin.Context) {
 
 }

@@ -17,10 +17,15 @@ type Container struct {
 
 // NewContainer 创建控制器容器
 func NewContainer(appCtx *appcontext.AppContext) *Container {
+
+	userRepo := repository.NewUserRepository(appCtx.DB)
+
 	captchaSvc := service.NewCaptchaService(appCtx.Redis)
+	userSvc := service.NewUserService(userRepo)
+	
 	return &Container{
 		Health:  NewHealthController(appCtx.DB),
-		User:    NewUserController(repository.NewUserRepository(appCtx.DB), captchaSvc),
+		User:    NewUserController(userSvc, captchaSvc),
 		Captcha: NewCaptchaController(captchaSvc),
 		Mail:    NewMailController(captchaSvc),
 	}

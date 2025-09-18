@@ -2,14 +2,30 @@ package service
 
 import (
 	"errors"
+	"github.com/LucienVen/tech-backend/internal/entity"
 	"github.com/LucienVen/tech-backend/internal/repository"
 )
 
-type UserService struct {
+type UserService interface {
+	CreateUser(user *entity.User) error
+	CheckUserExists(username, email string) (bool, error)
+}
+
+type userService struct {
 	repo repository.UserRepository
 }
 
-func (s *UserService) CheckUserExists(username, email string) (bool, error) {
+func NewUserService(repo repository.UserRepository) UserService {
+	return &userService{
+		repo: repo,
+	}
+}
+
+func (s *userService) CreateUser(user *entity.User) error {
+	return s.repo.Create(user)
+}
+
+func (s *userService) CheckUserExists(username, email string) (bool, error) {
 	if username != "" && email != "" {
 		existsUser, err1 := s.repo.ExistsByUsername(username)
 		existsEmail, err2 := s.repo.ExistsByEmail(email)

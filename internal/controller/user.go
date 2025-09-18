@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/LucienVen/tech-backend/internal/entity"
 	"github.com/LucienVen/tech-backend/internal/errors"
-	"github.com/LucienVen/tech-backend/internal/repository"
 	"github.com/LucienVen/tech-backend/internal/request"
 	"github.com/LucienVen/tech-backend/internal/response"
 	"github.com/LucienVen/tech-backend/internal/service"
@@ -13,14 +12,15 @@ import (
 
 // UserController 用户控制器
 type UserController struct {
-	userRepo        repository.UserRepository
+	//userRepo        repository.UserRepository
 	captchaVerifier service.CaptchaVerifier
+	userService     service.UserService
 }
 
 // NewUserController 创建用户控制器实例
-func NewUserController(userRepo repository.UserRepository, captchaVerifier service.CaptchaVerifier) *UserController {
+func NewUserController(userService service.UserService, captchaVerifier service.CaptchaVerifier) *UserController {
 	return &UserController{
-		userRepo:        userRepo,
+		userService:     userService,
 		captchaVerifier: captchaVerifier,
 	}
 }
@@ -43,7 +43,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 	}
 
 	// 检查用户名或邮箱是否已存在
-	exists, err := c.userRepo.Exists(req.Username, req.Email)
+	exists, err := c.userService.CheckUserExists(req.Username, req.Email)
 	if err != nil {
 		response.Error(ctx, errors.ErrCodeSystemError, "查询用户失败: "+err.Error())
 		return
@@ -70,8 +70,11 @@ func (c *UserController) Register(ctx *gin.Context) {
 	user := entity.NewUser(req.Username, req.Username, string(hash), "", req.Email)
 	user.Status = entity.UserStatusInactive // 初始为未激活
 
-	// TODO: 这里建议在 UserRepository 增加 Create 方法，统一数据写入
-	// 临时方案：如有需要可在 userRepo 接口和实现中补充 Create
+	err = c.userService.CreateUser(user)
+	if err != nil {
+		response.ServerError(ctx, err)
+		return
+	}
 
 	response.Success(ctx, gin.H{"message": "注册成功"})
 }

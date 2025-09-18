@@ -51,8 +51,20 @@ func (r *Router) RegisterRoutes() {
 		// v1.POST("/users", r.controllers.User.Create)
 		v1.POST("/register", r.controllers.User.Register)
 		v1.GET("/captcha", r.controllers.Captcha.GetCaptcha)
-		v1.GET("/verify-email", r.controllers.Mail.VerifyEmail) // 邮箱验证
+		v1.GET("/verify-email", r.controllers.Mail.VerifyEmail)            // 邮箱验证
+		v1.POST("/verification/email", r.controllers.Mail.SendVerifyEmail) // 发送验证邮件
 	}
+
+	// 登录验证
+	// TODO 独立出来，兼顾 grpc 验证？
+	// https://github.com/LucienVen/golang-auth-service
+
+	auth := base.Group("/auth")
+	{
+		// 注册、登录、退出、刷新 Token
+		auth.GET("/user", r.controllers.User.Get)
+	}
+
 }
 
 // GetEngine 获取 Gin 引擎
